@@ -1,15 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Professor Name - Research</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Profile | Your Name</title>
+    <style>
+        /* Professional Styling */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: auto; padding: 2rem; background-color: #f9f9f9; }
+        header { border-bottom: 2px solid #0056b3; padding-bottom: 1rem; margin-bottom: 2rem; }
+        h1 { margin: 0; color: #0056b3; }
+        h2 { border-left: 5px solid #0056b3; padding-left: 10px; margin-top: 2rem; color: #444; }
+        
+        /* Publication List Styling */
+        .pub-item { margin-bottom: 1.5rem; padding: 10px; background: white; border-radius: 5px; shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .pub-title { font-weight: bold; display: block; color: #222; }
+        .pub-meta { font-size: 0.9rem; color: #666; font-style: italic; }
+        
+        /* Looker Studio Container */
+        .app-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 1rem; }
+        .iframe-container { position: relative; width: 100%; padding-top: 56.25%; /* 16:9 Aspect Ratio */ overflow: hidden; }
+        .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        
+        @media (max-width: 600px) { body { padding: 1rem; } }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My Academic Page</h1>
-    <p>This is where I list my research and publications.</p>
 
-    <h2>My Courses</h2>
-    <p>Check out my interactive course data below:</p>
+<header>
+    <h1>Your Name, Ph.D.</h1>
+    <p>Assistant Professor | Department of Example | University Name</p>
+    <p>Email: <a href="mailto:email@university.edu">email@university.edu</a></p>
+</header>
+
+<section id="about">
+    <h2>Research Interests</h2>
+    <p>My research focuses on [Topic A], [Topic B], and [Topic C]. I am particularly interested in how data visualization can enhance student learning outcomes.</p>
+</section>
+
+<section id="publications">
+    <h2>Selected Publications</h2>
     
-    <iframe width="600" height="450" src="YOUR_LOOKER_STUDIO_LINK" frameborder="0" style="border:0" allowfullscreen></iframe>
+    <div class="pub-item">
+        <span class="pub-title">The Impact of Interactive Dashboards in Higher Ed</span>
+        <span class="pub-meta">Journal of Educational Tech, 2025. Co-authored with Smith, J.</span>
+    </div>
+
+    <div class="pub-item">
+        <span class="pub-title">Data-Driven Decision Making in Academics</span>
+        <span class="pub-meta">International Conference on Learning, 2024.</span>
+    </div>
+</section>
+
+<section id="courses">
+    <h2>Course Apps & Dashboards</h2>
+    <p>The following interactive tools were built using Google Looker Studio for my current semester courses.</p>
+    
+    <div class="app-card">
+        <h3>Course Analytics Dashboard</h3>
+        <div class="iframe-container">
+            <iframe src="https://lookerstudio.google.com/embed/reporting/YOUR_REPORT_ID/page/..." allowfullscreen></iframe>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p style="text-align:center; font-size: 0.8rem; margin-top: 4rem; color: #888;">&copy; 2026 Your Name. Built with GitHub Pages.</p>
+</footer>
+
 </body>
 </html>
