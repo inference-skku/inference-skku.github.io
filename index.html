@@ -1,70 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Profile | Your Name</title>
-    <style>
-        /* Professional Styling */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: auto; padding: 2rem; background-color: #f9f9f9; }
-        header { border-bottom: 2px solid #0056b3; padding-bottom: 1rem; margin-bottom: 2rem; }
-        h1 { margin: 0; color: #0056b3; }
-        h2 { border-left: 5px solid #0056b3; padding-left: 10px; margin-top: 2rem; color: #444; }
-        
-        /* Publication List Styling */
-        .pub-item { margin-bottom: 1.5rem; padding: 10px; background: white; border-radius: 5px; shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .pub-title { font-weight: bold; display: block; color: #222; }
-        .pub-meta { font-size: 0.9rem; color: #666; font-style: italic; }
-        
-        /* Looker Studio Container */
-        .app-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 1rem; }
-        .iframe-container { position: relative; width: 100%; padding-top: 56.25%; /* 16:9 Aspect Ratio */ overflow: hidden; }
-        .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        
-        @media (max-width: 600px) { body { padding: 1rem; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inference Lab — Sungkyunkwan University</title>
+<meta name="description" content="Inference Lab at Sungkyunkwan University. Inferring the hidden state, the hidden function, and the hidden model in multiscale stochastic systems — and establishing when the answer can be trusted.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <h1>Your Name, Ph.D.</h1>
-    <p>Assistant Professor | Department of Example | University Name</p>
-    <p>Email: <a href="mailto:email@university.edu">email@university.edu</a></p>
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University &middot; School of Mechanical Engineering</span>
+    </a>
+    <nav class="site">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="research.html">Research</a>
+      <a href="publications.html">Publications</a>
+      <a href="teaching.html">Teaching</a>
+      <a href="join.html">Join</a>
+    </nav>
+  </div>
 </header>
 
-<section id="about">
-    <h2>Research Interests</h2>
-    <p>My research focuses on [Topic A], [Topic B], and [Topic C]. I am particularly interested in how data visualization can enhance student learning outcomes.</p>
-</section>
+<main class="wrap">
 
-<section id="publications">
-    <h2>Selected Publications</h2>
-    
-    <div class="pub-item">
-        <span class="pub-title">The Impact of Interactive Dashboards in Higher Ed</span>
-        <span class="pub-meta">Journal of Educational Tech, 2025. Co-authored with Smith, J.</span>
+  <div class="hero">
+    <p class="claim">
+      We infer what cannot be observed in multiscale stochastic systems —
+      the hidden <em>state</em>, the hidden <em>function</em>, the hidden <em>model</em> —
+      and we work out when the answer can be trusted.
+    </p>
+    <p class="hero-sub">
+      Led by Jun H. Park. The lab works at the meeting point of stochastic dynamics,
+      inverse problems, and machine learning, on problems where the quantity you care
+      about is never measured directly.
+    </p>
+  </div>
+
+  <section>
+    <h2>Three layers of one question</h2>
+    <div class="layers">
+
+      <div class="layer">
+        <span class="num">01</span>
+        <h3>The hidden state</h3>
+        <p>
+          Given noisy, partial observations of a system with dynamics too fast to
+          resolve, what is it doing now? Nonlinear filtering in multiscale and
+          hybrid stochastic systems — where averaging and homogenization must
+          happen before the filter, not after.
+        </p>
+        <span class="years">2004 – 2013</span>
+      </div>
+
+      <div class="layer">
+        <span class="num">02</span>
+        <h3>The hidden function</h3>
+        <p>
+          Now the unknown is not a trajectory but a function — a spectral density,
+          an operator behind the data. Ill-posed inversion needs a prior, and a
+          learned prior with an exact likelihood makes the posterior tractable.
+        </p>
+        <span class="years">2021 – 2024</span>
+      </div>
+
+      <div class="layer">
+        <span class="num">03</span>
+        <h3>The hidden model</h3>
+        <p>
+          The unknown becomes the equation itself: the closure standing in for
+          physics a model cannot resolve. And a new question appears alongside it —
+          not only what the closure is, but whether its statistics can be trusted.
+        </p>
+        <span class="years">2024 – present</span>
+      </div>
+
     </div>
 
-    <div class="pub-item">
-        <span class="pub-title">Data-Driven Decision Making in Academics</span>
-        <span class="pub-meta">International Conference on Learning, 2024.</span>
+    <div class="pull">
+      <p>
+        Each layer is the one before it with the unknown moved up a level. The lab
+        published particle filtering on the Lorenz&nbsp;'96 atmospheric model in 2011,
+        and publishes learned closures on the same system today — the same testbed,
+        fifteen years apart, with a different unknown each time.
+      </p>
     </div>
-</section>
+  </section>
 
-<section id="courses">
-    <h2>Course Apps & Dashboards</h2>
-    <p>The following interactive tools were built using Google Looker Studio for my current semester courses.</p>
-    
-    <div class="app-card">
-        <h3>Course Analytics Dashboard</h3>
-        <div class="iframe-container">
-            <iframe src="https://lookerstudio.google.com/embed/reporting/YOUR_REPORT_ID/page/..." allowfullscreen></iframe>
-        </div>
-    </div>
-</section>
+  <section>
+    <h2>What we are working on now</h2>
+    <p class="lede">
+      Machine-learned components are being placed inside climate and weather models
+      faster than the tools to certify them are being built.
+    </p>
+    <p>
+      An emulator that forecasts well can still get the long-run statistics wrong,
+      and the long-run statistics are exactly what climate questions depend on.
+      Our current program is the mathematics of that gap: what a learned closure
+      preserves, what it quietly destroys, and how you would know the difference.
+      <a href="research.html">Read more &rarr;</a>
+    </p>
+  </section>
 
-<footer>
-    <p style="text-align:center; font-size: 0.8rem; margin-top: 4rem; color: #888;">&copy; 2026 Your Name. Built with GitHub Pages.</p>
+  <div class="callout">
+    <h2>Openings</h2>
+    <p>
+      The lab is recruiting its first graduate students and undergraduate
+      researchers. You do not need a background in machine learning or climate
+      science — you need to be comfortable with probability and differential
+      equations, and willing to be careful.
+    </p>
+    <a class="btn" href="join.html">How to join</a>
+  </div>
+
+  <section>
+    <h2>News</h2>
+    <!-- UPDATE AS THINGS LAND: add the CCAI acceptance (decisions 29 Sep 2026)
+         and change the JAMES entry from "in preparation" to "submitted" once it
+         is actually submitted. Do not list a paper as submitted before it is. -->
+    <ul class="news">
+      <li>
+        <span class="when">2026</span>
+        <span>Inference Lab opens at SKKU and begins recruiting its first students.</span>
+      </li>
+      <li>
+        <span class="when">2026</span>
+        <span>Work on stochastic closures for the two-timescale Lorenz&nbsp;'96 system,
+              in preparation for submission.</span>
+      </li>
+      <li>
+        <span class="when">2024</span>
+        <span><em>Solving inverse problems using normalizing flow prior: application to
+              optical spectra</em> appears in <em>Physical Review B</em>.</span>
+      </li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University, Suwon, Republic of Korea</p>
+    <p><a href="mailto:jun.park@skku.edu">jun.park@skku.edu</a></p>
+  </div>
 </footer>
 
 </body>

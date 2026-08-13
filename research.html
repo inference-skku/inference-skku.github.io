@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research — Inference Lab</title>
+<meta name="description" content="Nonlinear filtering in multiscale systems, inverse problems with learned priors, and the certification of learned closures and climate emulators.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University &middot; School of Mechanical Engineering</span>
+    </a>
+    <nav class="site">
+      <a href="index.html">Home</a>
+      <a href="research.html" aria-current="page">Research</a>
+      <a href="publications.html">Publications</a>
+      <a href="teaching.html">Teaching</a>
+      <a href="join.html">Join</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Research</h1>
+  <p class="lede">
+    One question, asked three times, with the unknown moved up a level each time.
+  </p>
+
+  <section>
+    <p class="eyebrow">Layer 01 &middot; 2004 – 2013</p>
+    <h2>The hidden state</h2>
+    <p>
+      A system is being driven by dynamics too fast to resolve. You observe it
+      noisily and only in part. What is it doing right now?
+    </p>
+    <p>
+      This is nonlinear filtering, and in multiscale systems the textbook answer
+      is the wrong one. Filtering the full system is intractable; filtering a
+      naively reduced system throws away the coupling that mattered. The work here
+      established how to average and homogenize <em>first</em>, then filter — with
+      the reduction carrying the fast scales' statistical effect rather than
+      discarding it, and with convergence results that say when the reduced filter
+      tracks the true one.
+    </p>
+    <p>
+      The systems ranged from impact oscillators with noise, through singularly
+      perturbed stochastic hybrid systems, to power-system machine trajectories —
+      and to the Lorenz&nbsp;'96 atmospheric model, which the lab has now been
+      returning to for fifteen years.
+    </p>
+
+    <div class="scroller">
+      <ul class="plain wide">
+        <li><em>Dimensional reduction in nonlinear filtering</em> — Nonlinearity, 2010</li>
+        <li><em>Particle filters in a multiscale environment: homogenized hybrid particle filter</em> — 2011</li>
+        <li><em>Particle filters in a multiscale environment: with application to the Lorenz&nbsp;'96 atmospheric model</em> — Stochastics and Dynamics, 2011</li>
+        <li><em>Efficient nonlinear filtering of a singularly perturbed stochastic hybrid system</em> — LMS Journal of Computation and Mathematics, 2011</li>
+        <li><em>A problem in stochastic averaging of nonlinear filters</em> — Stochastics and Dynamics, 2008</li>
+        <li><em>Stochastic dynamics of impact oscillators</em> — 2005</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Layer 02 &middot; 2021 – 2024</p>
+    <h2>The hidden function</h2>
+    <p>
+      Move the unknown up a level. It is no longer a trajectory but a function —
+      a spectral density, an operator standing behind the measurement.
+    </p>
+    <p>
+      Recovering it means solving an ill-posed inverse problem, and ill-posed
+      problems are decided by the prior. The work here replaced hand-designed
+      regularizers with a <em>learned</em> prior: a normalizing flow, trained on
+      physically admissible functions, which supplies an exact likelihood and so
+      makes the posterior something you can actually sample rather than merely
+      optimize against. Applied to optical spectra of correlated-electron
+      materials, it recovers electron–boson spectral density functions that
+      classical inversion cannot resolve.
+    </p>
+
+    <div class="scroller">
+      <ul class="plain wide">
+        <li><em>Solving inverse problems using normalizing flow prior: application to optical spectra</em> — Physical Review B, 2024</li>
+        <li><em>An inversion problem for optical spectrum data via physics-guided machine learning</em> — Scientific Reports, 2024</li>
+        <li><em>Electron-boson spectral density functions of cuprates obtained from optical spectra via machine learning</em> — Physical Review B, 2021</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Layer 03 &middot; 2024 – present</p>
+    <h2>The hidden model</h2>
+    <p>
+      Move it up once more. Now the unknown is the equation itself — the closure
+      that stands in for physics the model cannot resolve, learned from data
+      because no one can write it down.
+    </p>
+    <p>
+      And a second question arrives with it, which the first two layers never had
+      to face. A learned closure can be accurate on every metric you checked and
+      still be wrong about the thing you did not check. Weather forecasts can look
+      healthy while the simulated climate quietly contracts. So the question is
+      not only <em>what is the closure</em>, but <em>which statistics does it
+      preserve, and how would you know</em>.
+    </p>
+
+    <div class="pull">
+      <p>
+        This is the lab's current program: not building a better emulator, but
+        establishing the conditions under which anyone should believe one.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why this matters now</h2>
+    <p>
+      Climate models cannot resolve clouds, and the unresolved processes are where
+      the largest uncertainties live. The field's leading strategy is to replace
+      expensive components with machine-learned surrogates — emulators that make
+      thousand-member ensembles and kilometre-scale simulation affordable for the
+      first time.
+    </p>
+    <p>
+      The bet is unproven exactly where it matters most. Emulators reproduce
+      precipitation well and yet depart from robust physical behaviour in their
+      radiative response; extremes and tails remain a conspicuous weak point;
+      hybrid closures that behave offline can destabilize once coupled. Every one
+      of these failures is a well-posed mathematical problem.
+    </p>
+    <p>
+      The quantities climate policy depends on — sensitivity, feedback, the
+      frequency of extremes — are properties of a model's long-run invariant
+      measure, not of its forecast skill. Certifying that learned components
+      preserve those properties is the choke point, and it is where a small group
+      doing careful mathematics can matter more than a large one doing engineering.
+    </p>
+  </section>
+
+  <section>
+    <h2>Methods we use</h2>
+    <dl class="facts">
+      <dt>Stochastic dynamics and multiscale analysis</dt>
+      <dd>Averaging, homogenization, spectral budgets, invariant measures, Mori–Zwanzig memory.</dd>
+
+      <dt>Bayesian inference and inverse problems</dt>
+      <dd>Nonlinear filtering, data assimilation, learned priors, posterior sampling and coverage.</dd>
+
+      <dt>Generative and probabilistic machine learning</dt>
+      <dd>Normalizing flows, mixture density networks, and their use as measurement instruments rather than black boxes — an exact likelihood is a diagnostic, not just a loss.</dd>
+
+      <dt>Estimator discipline</dt>
+      <dd>Truth-versus-truth floors, perfect-model benchmarks, seed provenance. A surprising amount of published comparison is measuring its own sampling noise.</dd>
+    </dl>
+  </section>
+
+  <div class="callout">
+    <h2>Work on this with us</h2>
+    <p>
+      There are concretely scoped starter projects in each of these areas, sized
+      for a first-year graduate student or a capable undergraduate.
+    </p>
+    <a class="btn" href="join.html">See the projects</a>
+  </div>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University, Suwon, Republic of Korea</p>
+    <p><a href="mailto:jun.park@skku.edu">jun.park@skku.edu</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
