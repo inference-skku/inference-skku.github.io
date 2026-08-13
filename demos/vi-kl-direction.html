@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which KL you minimise — Variational Inference demo</title>
+<meta name="description" content="Interactive demonstration: reverse KL is mode-seeking and underestimates variance; forward KL is mass-covering. Variational Inference, Inference Lab, SKKU.">
+<style>
+/* Tokens copied from ../style.css so this file stands alone offline. */
+:root {
+  --bg:#fbfbfa; --bg-raised:#ffffff; --bg-sunken:#f2f2f0;
+  --text:#1a1a1c; --text-mute:#5c5c66; --text-faint:#84848f;
+  --rule:#e2e2df; --accent:#2d4a7c; --accent-lo:#eaeff7; --accent-hi:#1c3057;
+  --q:#c2410c;                     /* approximation q — warm, distinct from p */
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#131316; --bg-raised:#1b1b20; --bg-sunken:#0e0e11;
+    --text:#ececf0; --text-mute:#a6a6b2; --text-faint:#7b7b88;
+    --rule:#2c2c34; --accent:#93b2e6; --accent-lo:#1c2436; --accent-hi:#b9cdf2;
+    --q:#fb923c;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+     font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem}
+a{color:var(--accent);text-underline-offset:2px}
+
+.masthead{border-bottom:1px solid var(--rule);background:var(--bg-raised)}
+.masthead-inner{max-width:60rem;margin:0 auto;padding:1.4rem 1.5rem}
+.brand{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;text-decoration:none;color:inherit}
+.brand-name{font-family:var(--serif);font-size:1.5rem;font-weight:600;letter-spacing:-.01em}
+.brand-affil{font-size:.85rem;color:var(--text-faint)}
+
+h1{font-family:var(--serif);font-size:2rem;font-weight:600;margin:2.5rem 0 .4rem;letter-spacing:-.012em}
+.course-tag{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+            color:var(--text-faint);margin:0}
+.question{margin:1rem 0 0;max-width:38rem;font-size:1.06rem;color:var(--text-mute)}
+p{max-width:36rem}
+h2{font-size:1.2rem;font-weight:650;margin:2.6rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+
+/* ---- demo panel ---- */
+.panel{margin-top:2rem;background:var(--bg-raised);border:1px solid var(--rule);
+       border-radius:12px;padding:1.4rem}
+.stage{display:flex;gap:1.6rem;flex-wrap:wrap;align-items:flex-start}
+.plots{flex:1 1 22rem;min-width:min(100%,20rem)}
+canvas{display:block;width:100%;height:auto;border-radius:8px;background:var(--bg-sunken)}
+#marg{margin-top:.5rem}
+.axis-note{display:flex;justify-content:space-between;font-family:var(--mono);
+           font-size:.72rem;color:var(--text-faint);margin-top:.35rem}
+
+.controls{flex:0 0 15rem;min-width:min(100%,15rem)}
+fieldset{border:0;padding:0;margin:0 0 1.25rem}
+legend{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+       color:var(--text-faint);padding:0;margin-bottom:.5rem}
+.seg{display:flex;flex-direction:column;gap:.35rem}
+.seg label{display:flex;gap:.5rem;align-items:flex-start;font-size:.93rem;cursor:pointer;
+           padding:.4rem .55rem;border:1px solid var(--rule);border-radius:7px;background:var(--bg)}
+.seg label:hover{border-color:var(--accent)}
+.seg input{margin:.3rem 0 0}
+.seg .sub{display:block;font-size:.78rem;color:var(--text-faint);line-height:1.4}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rowlab{display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-mute)}
+.rowlab b{font-family:var(--mono);font-weight:500;color:var(--text)}
+
+button{font:inherit;font-size:.92rem;font-weight:600;padding:.5rem 1rem;border-radius:7px;
+       border:1px solid var(--accent);background:var(--accent);color:var(--bg-raised);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:hover{background:var(--accent-hi);border-color:var(--accent-hi);color:var(--bg-raised)}
+button.ghost:hover{color:var(--bg-raised)}
+@media (prefers-color-scheme:dark){button,button:hover{color:#0e0e11}}
+.btnrow{display:flex;gap:.5rem;margin-top:.25rem}
+
+.readout{margin-top:1.4rem;border-top:1px solid var(--rule);padding-top:1rem}
+.readout dl{display:grid;grid-template-columns:1fr auto;gap:.3rem .8rem;margin:0;font-size:.9rem}
+.readout dt{color:var(--text-mute)}
+.readout dd{margin:0;font-family:var(--mono);font-size:.86rem;text-align:right}
+.verdict{margin-top:.9rem;font-size:.88rem;line-height:1.5;color:var(--text-mute);
+         background:var(--accent-lo);border-radius:7px;padding:.6rem .7rem}
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.83rem;color:var(--text-mute);margin-top:.7rem}
+.swatch{display:inline-block;width:.8rem;height:.8rem;border-radius:3px;margin-right:.35rem;
+        vertical-align:-1px}
+.sw-p{background:var(--accent)}
+.sw-q{background:transparent;border:2px solid var(--q)}
+
+.footer{border-top:1px solid var(--rule);background:var(--bg-sunken);padding:2rem 0;margin-top:4rem}
+.footer p{margin:0;font-size:.85rem;color:var(--text-faint);max-width:none}
+@media (max-width:34rem){body{font-size:16px}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p class="course-tag" style="margin-top:2.5rem">Variational Inference &middot; demonstration</p>
+  <h1>Which KL you minimise decides what you get wrong</h1>
+
+  <p class="question">
+    <strong>Watch for this:</strong> both fits below are “optimal”. They minimise
+    the <em>same</em> divergence between the same two distributions — only the
+    argument order differs. One comes out too narrow. The other covers ground
+    where the target has no mass at all. Neither is a bug.
+  </p>
+
+  <div class="panel">
+    <div class="stage">
+
+      <div class="plots">
+        <canvas id="cv" width="880" height="880" aria-label="Joint density of the target p with the fitted approximation q overlaid"></canvas>
+        <div class="axis-note"><span>z₁ = −4</span><span>z₁ = +4</span></div>
+        <canvas id="marg" width="880" height="200" aria-label="Marginal density along z one: target versus approximation"></canvas>
+        <div class="legend">
+          <span><i class="swatch sw-p"></i>target <b>p(z)</b></span>
+          <span><i class="swatch sw-q"></i>approximation <b>q(z₁)q(z₂)</b>, 1σ and 2σ</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <fieldset>
+          <legend>Which KL</legend>
+          <div class="seg">
+            <label><input type="radio" name="dir" value="rev" checked>
+              <span><b>Reverse</b> — KL(q‖p)
+                <span class="sub">what standard VI minimises</span></span></label>
+            <label><input type="radio" name="dir" value="fwd">
+              <span><b>Forward</b> — KL(p‖q)
+                <span class="sub">moment matching / expectation propagation</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Target</legend>
+          <div class="seg">
+            <label><input type="radio" name="tgt" value="gauss" checked>
+              <span>Correlated Gaussian</span></label>
+            <label><input type="radio" name="tgt" value="bimodal">
+              <span>Two modes</span></label>
+            <label><input type="radio" name="tgt" value="banana">
+              <span>Curved ridge</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset id="rhoBox">
+          <legend>Correlation ρ</legend>
+          <div class="rowlab"><span>ρ</span><b id="rhoVal">0.90</b></div>
+          <input type="range" id="rho" min="0" max="0.95" step="0.01" value="0.9">
+        </fieldset>
+
+        <div class="btnrow">
+          <button id="run">Re-fit from a new start</button>
+        </div>
+
+        <div class="readout">
+          <dl>
+            <dt>KL divergence</dt><dd id="klv">—</dd>
+            <dt>sd of p along z₁</dt><dd id="sdp">—</dd>
+            <dt>sd of q along z₁</dt><dd id="sdq">—</dd>
+            <dt>q width ÷ p width</dt><dd id="ratio">—</dd>
+          </dl>
+          <p class="verdict" id="verdict">—</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <h2>What you are looking at</h2>
+  <p>
+    The target <b>p(z)</b> is a distribution over two variables that are coupled —
+    knowing z₁ tells you something about z₂. The approximation <b>q</b> is forced
+    to factorise, <em>q(z₁)q(z₂)</em>, so it can never represent that coupling.
+    This is the mean-field assumption, and it is the price of admission for
+    tractable variational inference.
+  </p>
+  <p>
+    Given that q cannot be right, the question becomes: <em>in which direction
+    should it be wrong?</em> That is decided entirely by which argument of the KL
+    divergence you put it in.
+  </p>
+
+  <h2>Reverse KL — the one you are actually minimising</h2>
+  <p>
+    Maximising the ELBO is exactly minimising KL(q‖p). The expectation is taken
+    <em>under q</em>, so the penalty is only ever felt where q puts mass. Wherever
+    p ≈ 0 and q &gt; 0, the integrand blows up — so q learns to stay strictly
+    inside the target's support. It is <strong>mode-seeking</strong>, and on a
+    correlated Gaussian it comes out visibly too narrow.
+  </p>
+  <p>
+    That narrowness is not approximate folklore; it is exact. For a Gaussian
+    target the optimal factorised q has variance <b>1/Λᵢᵢ</b>, the reciprocal of
+    the <em>precision</em> diagonal, not the covariance diagonal. For the
+    two-variable case that means the standard deviation shrinks by exactly
+    <b>√(1−ρ²)</b>. Set ρ = 0.9 above and the readout will report a width ratio of
+    0.436 — check it against √(1−0.81).
+  </p>
+  <p>
+    <strong>The practical consequence:</strong> a variational posterior reports
+    error bars that are too small, and it does so confidently. If you use VI for
+    uncertainty quantification and take the credible intervals at face value, you
+    will be overconfident by a factor that grows with how correlated your
+    parameters are — and parameters in real models are correlated.
+  </p>
+
+  <h2>Forward KL — the one you usually cannot compute</h2>
+  <p>
+    Reverse the arguments and the expectation is taken <em>under p</em>. Now the
+    penalty falls wherever p has mass and q does not, so q is punished for leaving
+    anything uncovered. It becomes <strong>mass-covering</strong>: on the
+    two-mode target it stretches across both modes and places its own peak in the
+    valley between them, where the target has almost no probability at all.
+  </p>
+  <p>
+    For a Gaussian family this fit has a closed form — match the mean and variance
+    of p, which is why it is called moment matching. It recovers the marginal
+    widths exactly. So why is it not the default? Because computing those moments
+    requires expectations under p, and p is the intractable posterior you were
+    trying to approximate in the first place. Forward KL is the better objective
+    and the one you generally cannot have.
+  </p>
+
+  <h2>A coincidence worth noticing</h2>
+  <p>
+    On the correlated Gaussian, both directions report the <em>same</em>
+    divergence — 0.8304 at ρ = 0.9. That is not a display error. For a Gaussian
+    both minima equal <b>−½ ln(1−ρ²)</b>, which is also the mutual information
+    between z₁ and z₂. Identical cost in nats; two completely different
+    approximations.
+  </p>
+  <p>
+    So the divergence tells you how much the factorisation throws away. It tells
+    you nothing whatever about <em>which way</em> you will be wrong — and that is
+    the part that decides whether your credible intervals are too small or your
+    posterior has a mode you never saw.
+  </p>
+
+  <h2>Try this</h2>
+  <p>
+    Set the target to <em>two modes</em> and switch between the two directions.
+    Reverse KL will commit to one mode and ignore the other entirely — a posterior
+    that is confidently, precisely wrong about half the answer. Forward KL spans
+    both and is confidently wrong about the middle. Then ask yourself which
+    failure you would rather explain to a referee.
+  </p>
+
+  <p style="margin-top:2.5rem">
+    <a href="../teaching.html">&larr; Back to teaching</a>
+  </p>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- grid ----------
+  // The integration domain is deliberately wider than the window we draw. If a
+  // wide q spilled off the edge of the grid, the very negative log p in its tails
+  // would be silently omitted from E_q[log p] — widening would look free and the
+  // entropy term would run away. Integrate on [-7,7]; display [-4,4].
+  var N = 169, LO = -7, HI = 7;
+  var DLO = -4, DHI = 4;
+  var h = (HI - LO) / (N - 1), dA = h * h;
+  var ax = new Float64Array(N);
+  for (var i = 0; i < N; i++) ax[i] = LO + i * h;
+  var i0 = Math.round((DLO - LO) / h), i1 = Math.round((DHI - LO) / h);
+  var DN = i1 - i0 + 1;
+
+  var p = new Float64Array(N * N);      // normalised target density
+  var logp = new Float64Array(N * N);   // log target, floored
+  var pmarg = new Float64Array(N);      // marginal of p over z1
+  var pMean1 = 0, pSd1 = 1;             // moments of that marginal
+  var pMean2 = 0, pSd2 = 1;
+
+  // ---------- targets ----------
+  // log p is built ANALYTICALLY, never as log() of a density that may have
+  // underflowed to zero. Far from the mode a floored log-density goes flat, the
+  // gradient of E_q[log p] vanishes, and the entropy term — which always favours
+  // a wider q — runs away unopposed. Keeping the exact quadratic tail is what
+  // makes reverse KL mode-seeking rather than divergent.
+  function fill(kind, rho) {
+    var i, j, k, z1, z2, lg, maxlg = -Infinity;
+    for (j = 0; j < N; j++) {
+      z2 = ax[j];
+      for (i = 0; i < N; i++) {
+        z1 = ax[i]; k = j * N + i;
+        if (kind === "gauss") {
+          var d = 1 - rho * rho;
+          lg = -(z1 * z1 - 2 * rho * z1 * z2 + z2 * z2) / (2 * d);
+        } else if (kind === "bimodal") {
+          var s = 0.62, a = (z1 + 1.65), b = (z2 + 0.95), c = (z1 - 1.65), e = (z2 - 0.95);
+          var la = -(a * a + b * b) / (2 * s * s), lb = -(c * c + e * e) / (2 * s * s);
+          var hi = la > lb ? la : lb;                       // log-sum-exp, stable
+          lg = hi + Math.log(Math.exp(la - hi) + Math.exp(lb - hi));
+        } else { // banana / curved ridge
+          var m = 0.55 * (z1 * z1 - 1.8), r = z2 - m;
+          lg = -(z1 * z1) / (2 * 1.25 * 1.25) - (r * r) / (2 * 0.42 * 0.42);
+        }
+        logp[k] = lg;
+        if (lg > maxlg) maxlg = lg;
+      }
+    }
+    var sum = 0;
+    for (k = 0; k < N * N; k++) sum += Math.exp(logp[k] - maxlg);
+    var logZ = maxlg + Math.log(sum * dA);
+    for (k = 0; k < N * N; k++) { logp[k] -= logZ; p[k] = Math.exp(logp[k]); }
+
+    // marginal over z1 and its moments
+    var m0 = 0, m1 = 0, m2 = 0;
+    for (i = 0; i < N; i++) {
+      var acc = 0;
+      for (j = 0; j < N; j++) acc += p[j * N + i];
+      pmarg[i] = acc * h;
+      m0 += pmarg[i] * h; m1 += ax[i] * pmarg[i] * h; m2 += ax[i] * ax[i] * pmarg[i] * h;
+    }
+    pMean1 = m1 / m0; pSd1 = Math.sqrt(Math.max(m2 / m0 - pMean1 * pMean1, 1e-9));
+
+    // moments along z2 (for the forward-KL closed form)
+    var n0 = 0, n1 = 0, n2 = 0;
+    for (j = 0; j < N; j++) {
+      var acc2 = 0;
+      for (i = 0; i < N; i++) acc2 += p[j * N + i];
+      var pm = acc2 * h;
+      n0 += pm * h; n1 += ax[j] * pm * h; n2 += ax[j] * ax[j] * pm * h;
+    }
+    pMean2 = n1 / n0; pSd2 = Math.sqrt(Math.max(n2 / n0 - pMean2 * pMean2, 1e-9));
+  }
+
+  // ---------- q ----------
+  var q = { m1: 0, m2: 0, l1: 0, l2: 0 };   // l = log sd
+  // Start off-target but inside the informative region, so the descent is worth
+  // watching without beginning in a numerical desert.
+  function resetQ() { q.m1 = 1.5; q.m2 = -1.5; q.l1 = Math.log(0.9); q.l2 = Math.log(0.9); }
+
+  function normpdf(x, m, s) {
+    var d = (x - m) / s;
+    return Math.exp(-0.5 * d * d) / (s * Math.sqrt(2 * Math.PI));
+  }
+
+  // reverse KL(q||p) = -H(q) - E_q[log p]; entropy analytic, cross term on the grid
+  function revKL(t) {
+    var s1 = Math.exp(t.l1), s2 = Math.exp(t.l2), i, j, cross = 0;
+    var g1 = new Float64Array(N), g2 = new Float64Array(N);
+    for (i = 0; i < N; i++) { g1[i] = normpdf(ax[i], t.m1, s1); g2[i] = normpdf(ax[i], t.m2, s2); }
+    // cross and the captured q mass in one pass; self-normalising keeps any
+    // residual truncation from acting as a width-dependent bias
+    var qm = 0;
+    for (j = 0; j < N; j++) {
+      var row = j * N, w = g2[j];
+      if (w < 1e-14) continue;
+      for (i = 0; i < N; i++) { var wg = w * g1[i]; cross += wg * logp[row + i]; qm += wg; }
+    }
+    cross = cross / Math.max(qm, 1e-12);
+    var negH = -(0.5 * Math.log(2 * Math.PI * Math.E * s1 * s1) + 0.5 * Math.log(2 * Math.PI * Math.E * s2 * s2));
+    return negH - cross;
+  }
+
+  // forward KL(p||q) = -H(p) - E_p[log q]; H(p) constant in q, but report the full value
+  var Hp = 0;
+  function entropyP() {
+    var s = 0;
+    for (var k = 0; k < N * N; k++) if (p[k] > 1e-14) s -= p[k] * Math.log(p[k]);
+    Hp = s * dA;
+  }
+  function fwdKL(t) {
+    var s1 = Math.exp(t.l1), s2 = Math.exp(t.l2), i, j, cross = 0;
+    var lg1 = new Float64Array(N), lg2 = new Float64Array(N);
+    for (i = 0; i < N; i++) {
+      lg1[i] = Math.log(normpdf(ax[i], t.m1, s1) + 1e-300);
+      lg2[i] = Math.log(normpdf(ax[i], t.m2, s2) + 1e-300);
+    }
+    for (j = 0; j < N; j++) {
+      var row = j * N;
+      for (i = 0; i < N; i++) cross += p[row + i] * (lg1[i] + lg2[j]);
+    }
+    return -Hp - cross * dA;
+  }
+
+  // ---------- optimisation ----------
+  // Forward KL over a diagonal Gaussian is solved exactly by moment matching.
+  // Reverse KL has no closed form: gradient descent on (m1,m2,log s1,log s2).
+  var vel = [0, 0, 0, 0], settled = false;
+
+  function stepReverse() {
+    var eps = 2e-3, lr = 0.05, mom = 0.72, keys = ["m1", "m2", "l1", "l2"], g = [0, 0, 0, 0], i;
+    for (i = 0; i < 4; i++) {
+      var save = q[keys[i]];
+      q[keys[i]] = save + eps; var up = revKL(q);
+      q[keys[i]] = save - eps; var dn = revKL(q);
+      q[keys[i]] = save;
+      g[i] = (up - dn) / (2 * eps);
+    }
+    // Convergence must be judged on the GRADIENT, not the velocity. Under
+    // momentum the velocity passes through zero at every turning point, so a
+    // velocity test halts at an arbitrary point of the trajectory and calls it
+    // an optimum. Clamp the velocity itself, not just the applied step, or it
+    // accumulates past the clamp and oscillates.
+    var gmag = 0;
+    for (i = 0; i < 4; i++) gmag += Math.abs(g[i]);
+    for (i = 0; i < 4; i++) {
+      vel[i] = Math.max(-0.18, Math.min(0.18, mom * vel[i] - lr * g[i]));
+      q[keys[i]] += vel[i];
+    }
+    q.l1 = Math.max(Math.log(0.06), Math.min(Math.log(2.6), q.l1));
+    q.l2 = Math.max(Math.log(0.06), Math.min(Math.log(2.6), q.l2));
+    q.m1 = Math.max(DLO, Math.min(DHI, q.m1));
+    q.m2 = Math.max(DLO, Math.min(DHI, q.m2));
+    return gmag < 5e-4;
+  }
+
+  // Solve synchronously to convergence. Correctness must not depend on the
+  // animation loop firing — requestAnimationFrame is throttled or suspended in a
+  // background or hidden tab, and a half-finished descent looks exactly like a
+  // converged one to the reader.
+  function solveReverse() {
+    vel = [0, 0, 0, 0];
+    for (var it = 0; it < 4000; it++) if (stepReverse()) break;
+    settled = true;
+  }
+
+  function solveForward() {
+    q.m1 = pMean1; q.m2 = pMean2;
+    q.l1 = Math.log(pSd1); q.l2 = Math.log(pSd2);
+    settled = true;
+  }
+
+  // ---------- drawing ----------
+  var cv = document.getElementById("cv"), cx = cv.getContext("2d");
+  var mc = document.getElementById("marg"), mx = mc.getContext("2d");
+  var img = cx.createImageData(DN, DN);
+  var off = document.createElement("canvas"); off.width = DN; off.height = DN;
+  var ox = off.getContext("2d");
+
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function hex(c) {
+    c = c.replace("#", "");
+    if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
+  }
+
+  function draw() {
+    var W = cv.width, H = cv.height;
+    var accent = hex(css("--accent")), qc = css("--q");
+    var pmax = 0, k;
+    for (k = 0; k < N * N; k++) if (p[k] > pmax) pmax = p[k];
+
+    for (var j = 0; j < DN; j++) {
+      for (var i = 0; i < DN; i++) {
+        var t = p[(i1 - j) * N + (i0 + i)] / pmax;  // crop to window; canvas y grows downward
+        var a = Math.pow(t, 0.55);
+        var o = (j * DN + i) * 4;
+        img.data[o] = accent[0]; img.data[o + 1] = accent[1]; img.data[o + 2] = accent[2];
+        img.data[o + 3] = Math.round(235 * a);
+      }
+    }
+    ox.putImageData(img, 0, 0);
+    cx.clearRect(0, 0, W, H);
+    cx.imageSmoothingEnabled = true;
+    cx.drawImage(off, 0, 0, W, H);
+
+    // q contours at 1σ and 2σ (axis-aligned because q factorises)
+    var sx = W / (DHI - DLO), sy = H / (DHI - DLO);
+    var cxp = (q.m1 - DLO) * sx, cyp = H - (q.m2 - DLO) * sy;
+    var s1 = Math.exp(q.l1), s2 = Math.exp(q.l2);
+    cx.strokeStyle = qc; cx.lineWidth = 3.5;
+    [1, 2].forEach(function (kk, idx) {
+      cx.globalAlpha = idx === 0 ? 1 : 0.5;
+      cx.beginPath();
+      cx.ellipse(cxp, cyp, kk * s1 * sx, kk * s2 * sy, 0, 0, Math.PI * 2);
+      cx.stroke();
+    });
+    cx.globalAlpha = 1;
+    cx.fillStyle = qc;
+    cx.beginPath(); cx.arc(cxp, cyp, 6, 0, Math.PI * 2); cx.fill();
+
+    drawMarginal();
+  }
+
+  function drawMarginal() {
+    var W = mc.width, H = mc.height, i;
+    mx.clearRect(0, 0, W, H);
+    var s1 = Math.exp(q.l1);
+    var qm = new Float64Array(N), mx1 = 0;
+    for (i = 0; i < N; i++) qm[i] = normpdf(ax[i], q.m1, s1);
+    for (i = i0; i <= i1; i++) { if (pmarg[i] > mx1) mx1 = pmarg[i]; if (qm[i] > mx1) mx1 = qm[i]; }
+    var pad = 14, plotH = H - pad * 2;
+    function X(i) { return ((i - i0) / (DN - 1)) * W; }   // same window as the joint plot
+    function Y(v) { return H - pad - (v / mx1) * plotH; }
+
+    mx.fillStyle = css("--accent"); mx.globalAlpha = 0.28;
+    mx.beginPath(); mx.moveTo(X(i0), H - pad);
+    for (i = i0; i <= i1; i++) mx.lineTo(X(i), Y(pmarg[i]));
+    mx.lineTo(X(i1), H - pad); mx.closePath(); mx.fill();
+    mx.globalAlpha = 1;
+
+    mx.strokeStyle = css("--q"); mx.lineWidth = 3.5;
+    mx.beginPath();
+    for (i = i0; i <= i1; i++) { if (i === i0) mx.moveTo(X(i), Y(qm[i])); else mx.lineTo(X(i), Y(qm[i])); }
+    mx.stroke();
+  }
+
+  // ---------- readout ----------
+  var klEl = document.getElementById("klv"), sdpEl = document.getElementById("sdp"),
+      sdqEl = document.getElementById("sdq"), ratEl = document.getElementById("ratio"),
+      verEl = document.getElementById("verdict");
+
+  function report(dir, kind, rho) {
+    var s1 = Math.exp(q.l1);
+    var kl = dir === "rev" ? revKL(q) : fwdKL(q);
+    klEl.textContent = (kl >= 0 ? kl : 0).toFixed(4);
+    sdpEl.textContent = pSd1.toFixed(3);
+    sdqEl.textContent = s1.toFixed(3);
+    var r = s1 / pSd1;
+    ratEl.textContent = r.toFixed(3);
+
+    var msg;
+    if (dir === "rev") {
+      if (kind === "gauss") {
+        msg = "Reverse KL is mode-seeking. Theory says the ratio should be √(1−ρ²) = "
+            + Math.sqrt(1 - rho * rho).toFixed(3) + ". The fit found "
+            + r.toFixed(3) + " — your error bars are that fraction of the truth.";
+      } else if (kind === "bimodal") {
+        msg = "Reverse KL will not straddle a low-density valley: q has collapsed onto one mode "
+            + "and abandoned the other. Precise, confident, and wrong about half the posterior.";
+      } else {
+        msg = "q cannot bend, so reverse KL tucks it inside the ridge — narrow, and blind to "
+            + "the curvature that carries most of the probability.";
+      }
+    } else {
+      if (kind === "gauss") {
+        msg = "Forward KL matches moments, so the marginal width is recovered exactly (ratio ≈ 1). "
+            + "It needs expectations under p — the very thing you could not compute.";
+      } else if (kind === "bimodal") {
+        msg = "Forward KL is mass-covering: q spans both modes and puts its peak in the valley "
+            + "between them, where p has almost no mass at all.";
+      } else {
+        msg = "Forward KL stretches q to cover the whole ridge, including the empty region the "
+            + "curve arcs around.";
+      }
+    }
+    verEl.textContent = msg;
+  }
+
+  // ---------- wiring ----------
+  function currentDir() { return document.querySelector('input[name=dir]:checked').value; }
+  function currentTgt() { return document.querySelector('input[name=tgt]:checked').value; }
+  function currentRho() { return parseFloat(document.getElementById("rho").value); }
+
+  function rebuild(keepQ) {
+    var kind = currentTgt(), rho = currentRho();
+    document.getElementById("rhoBox").style.display = kind === "gauss" ? "" : "none";
+    fill(kind, rho); entropyP();
+    if (!keepQ) resetQ();
+    vel = [0, 0, 0, 0]; settled = false;
+    run();
+  }
+
+  function run() {
+    var dir = currentDir();
+    if (dir === "fwd") solveForward(); else solveReverse();
+    draw();
+    report(dir, currentTgt(), currentRho());
+  }
+
+  document.querySelectorAll('input[name=dir]').forEach(function (el) {
+    el.addEventListener("change", function () { resetQ(); vel = [0, 0, 0, 0]; run(); });
+  });
+  document.querySelectorAll('input[name=tgt]').forEach(function (el) {
+    el.addEventListener("change", function () { rebuild(false); });
+  });
+  document.getElementById("rho").addEventListener("input", function () {
+    document.getElementById("rhoVal").textContent = parseFloat(this.value).toFixed(2);
+    rebuild(false);
+  });
+  // Restart from a random initialisation. On the two-mode target this is the
+  // point: which mode reverse KL commits to depends on where you started, and
+  // nothing in the objective tells you another mode was ever there.
+  document.getElementById("run").addEventListener("click", function () {
+    q.m1 = (Math.random() * 2 - 1) * 2.2;
+    q.m2 = (Math.random() * 2 - 1) * 2.2;
+    q.l1 = Math.log(0.7 + Math.random() * 0.6);
+    q.l2 = Math.log(0.7 + Math.random() * 0.6);
+    vel = [0, 0, 0, 0];
+    run();
+  });
+
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", draw);
+  }
+
+  rebuild(false);
+})();
+</script>
+
+</body>
+</html>

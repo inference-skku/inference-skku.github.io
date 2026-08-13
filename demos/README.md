@@ -23,7 +23,7 @@ self-contained files means a demo can fail without touching anything else.
 fme1-slope-fields.html          Fundamental Mathematics in Engineering I
 fme1-phase-portrait.html
 fme2-heat-equation.html         Fundamental Mathematics in Engineering II
-vi-elbo-gap.html                Variational Inference
+vi-kl-direction.html            Variational Inference  (the first one, built)
 ```
 
 ## Rules
