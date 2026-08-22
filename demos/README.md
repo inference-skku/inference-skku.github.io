@@ -22,9 +22,16 @@ self-contained files means a demo can fail without touching anything else.
 ```
 fme1-slope-fields.html          Fundamental Mathematics in Engineering I
 fme1-phase-portrait.html
-fme2-heat-equation.html         Fundamental Mathematics in Engineering II
+fme2-spring-modes.html          Fundamental Mathematics in Engineering II  (built — Lecture 13)
+fme2-string-overtones.html      Fundamental Mathematics in Engineering II  (built — Lecture 13, WebAudio)
+fme2-heat-equation.html
 vi-kl-direction.html            Variational Inference  (the first one, built)
 ```
+
+The FME2 demos are developed in the course folder
+(`Dropbox/Classes/Emath2/demos/`, deck-palette versions used in slides) and
+copied here with the site chrome added. Edit the site copies for anything a
+student sees; port changes back to the course folder if the physics changes.
 
 ## Rules
 

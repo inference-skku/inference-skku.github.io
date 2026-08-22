@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>String overtones — hear the shape — Fundamental Mathematics in Engineering II demo</title>
+<meta name="description" content="Interactive demonstration: mix the modes of a vibrating string with sliders, watch the shape, and hear the same mix as timbre — every overtone you hear is a mode you can see. Fundamental Mathematics in Engineering II, Inference Lab, SKKU.">
+<style>
+/* Tokens copied from ../style.css so this file stands alone offline. */
+:root {
+  --bg:#fbfbfa; --bg-raised:#ffffff; --bg-sunken:#f2f2f0;
+  --text:#1a1a1c; --text-mute:#5c5c66; --text-faint:#84848f;
+  --rule:#e2e2df; --accent:#2d4a7c; --accent-lo:#eaeff7; --accent-hi:#1c3057;
+  --mode:#c1272d; --mode-lo:#e08573;   /* a mode / eigen-object — matches the course slides */
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#131316; --bg-raised:#1b1b20; --bg-sunken:#0e0e11;
+    --text:#ececf0; --text-mute:#a6a6b2; --text-faint:#7b7b88;
+    --rule:#2c2c34; --accent:#93b2e6; --accent-lo:#1c2436; --accent-hi:#b9cdf2;
+    --mode:#f26a6a; --mode-lo:#f2a58f;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+     font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem}
+a{color:var(--accent);text-underline-offset:2px}
+.masthead{border-bottom:1px solid var(--rule);background:var(--bg-raised)}
+.masthead-inner{max-width:60rem;margin:0 auto;padding:1.4rem 1.5rem}
+.brand{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;text-decoration:none;color:inherit}
+.brand-name{font-family:var(--serif);font-size:1.5rem;font-weight:600;letter-spacing:-.01em}
+.brand-affil{font-size:.85rem;color:var(--text-faint)}
+h1{font-family:var(--serif);font-size:2rem;font-weight:600;margin:2.5rem 0 .4rem;letter-spacing:-.012em}
+.course-tag{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+            color:var(--text-faint);margin:0}
+.question{margin:1rem 0 0;max-width:38rem;font-size:1.06rem;color:var(--text-mute)}
+p{max-width:36rem}
+h2{font-size:1.2rem;font-weight:650;margin:2.6rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+.panel{margin-top:2rem;background:var(--bg-raised);border:1px solid var(--rule);border-radius:12px;padding:1.4rem}
+canvas{display:block;width:100%;height:auto;border-radius:8px;background:var(--bg-sunken)}
+.mixer{display:flex;gap:6px;justify-content:center;align-items:flex-end;
+       background:var(--bg-sunken);border-radius:8px;padding:12px 8px 6px;margin-top:.8rem}
+.ch{display:flex;flex-direction:column;align-items:center;width:11%;min-width:54px}
+.ch input[type=range]{writing-mode:vertical-lr;direction:rtl;width:26px;height:110px;
+                      accent-color:var(--mode);touch-action:none}
+.ch .k{font-weight:700;color:var(--mode);font-size:.95rem;margin-top:4px}
+.ch .f{color:var(--text-faint);font-size:.68rem;font-family:var(--mono)}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:1rem}
+button{font:inherit;font-size:.9rem;padding:.45rem .9rem;border-radius:7px;
+       border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+button.on{background:var(--accent-lo)}
+button:hover{background:var(--accent-hi);border-color:var(--accent-hi);color:var(--bg-raised)}
+#play{border-color:var(--mode);color:var(--mode);font-weight:700}
+#play.on{background:var(--mode);color:var(--bg-raised)}
+.note{font-size:.85rem;color:var(--text-faint);margin-top:.6rem;max-width:none}
+.note b{color:var(--mode)}
+ul{max-width:36rem}
+li{margin:.3rem 0}
+.footer{margin-top:4rem;border-top:1px solid var(--rule);padding:1.4rem 0 2.5rem;font-size:.85rem;color:var(--text-faint)}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p class="course-tag" style="margin-top:2.5rem">Fundamental Mathematics in Engineering II &middot; Lecture 13 &middot; demonstration</p>
+  <h1>The overtones you hear are the modes you see</h1>
+  <p class="question">
+    Each slider is one mode of the string — shape sin(k&pi;x), pitch k&times;f<sub>0</sub>.
+    Mix them, watch the string, then press <em>play</em> to hear that exact mix as
+    timbre. Does changing the shape change the sound?
+  </p>
+
+  <div class="panel">
+    <canvas id="string" height="280"></canvas>
+    <div class="mixer" id="mixer"></div>
+    <div class="controls">
+      <button id="play">&#9654; play</button>
+      <button id="pluckC">pluck center</button>
+      <button id="pluckE">pluck near end</button>
+      <button id="pure1">mode 1 only</button>
+      <button id="pure2">mode 2 only</button>
+      <button id="ghosts" class="on">show modes</button>
+      <button id="clear">clear</button>
+    </div>
+    <p class="note">
+      Mode k sounds at k&times;196&nbsp;Hz (f<sub>0</sub> = G3). Sound is synthesised on
+      your device; your browser needs one click on <b>play</b> before it will make any.
+    </p>
+  </div>
+
+  <h2>How to read it</h2>
+  <ul>
+    <li><em>Mode 1 only</em>: a pure sine shape and a pure tone. <em>Mode 2 only</em>:
+        the shape has a node in the middle — and the pitch is exactly an octave up.</li>
+    <li><em>Pluck center</em>: only odd modes appear, with weights 1, 1/9, 1/25, … —
+        a hollow, flute-like tone. <em>Pluck near end</em>: many modes, a brighter,
+        guitar-like tone. Same string; different shape; different sound.</li>
+    <li>A string plucked once vibrates in all its modes at once. The mix of overtones
+        you hear <b style="color:var(--mode)">is</b> the mix of mode shapes — that is
+        Daniel Bernoulli's 1753 claim, made audible.</li>
+    <li>What this mixer <em>cannot</em> make: a gong, a drum, or the sound "sh". Those
+        need frequencies that are not multiples of one f<sub>0</sub> — a continuum of
+        them. That is the step from the Fourier series to the Fourier transform, later
+        in the course.</li>
+  </ul>
+
+  <p style="margin-top:2rem"><a href="../teaching.html">&larr; Back to teaching</a></p>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  const css = () => getComputedStyle(document.documentElement);
+  const col = name => css().getPropertyValue(name).trim();
+  const NMODES = 8, F0 = 196;
+  let amps = new Array(NMODES).fill(0);
+  let t = 0, playing = false, showGhosts = true;
+  let ctxA = null, oscs = [], gains = [], master = null;
+
+  const mixer = document.getElementById('mixer');
+  const sliders = [];
+  for (let k = 1; k <= NMODES; k++) {
+    const ch = document.createElement('div'); ch.className = 'ch';
+    const sl = document.createElement('input');
+    sl.type = 'range'; sl.min = 0; sl.max = 1; sl.step = 0.01; sl.value = 0;
+    sl.setAttribute('aria-label', 'amplitude of mode ' + k);
+    sl.addEventListener('input', () => { amps[k-1] = +sl.value; syncGains(); });
+    const kl = document.createElement('div'); kl.className = 'k'; kl.textContent = k;
+    const fl = document.createElement('div'); fl.className = 'f'; fl.textContent = (k*F0) + ' Hz';
+    ch.appendChild(sl); ch.appendChild(kl); ch.appendChild(fl); mixer.appendChild(ch);
+    sliders.push(sl);
+  }
+  function setAmps(a) {
+    for (let i = 0; i < NMODES; i++) { amps[i] = a[i] || 0; sliders[i].value = amps[i]; }
+    syncGains();
+  }
+  function pluck(p) {   // pluck at fraction p: a_k ∝ sin(k·pi·p)/k^2
+    const a = [];
+    for (let k = 1; k <= NMODES; k++) a.push(Math.abs(Math.sin(k*Math.PI*p))/(k*k));
+    const m = Math.max.apply(null, a);
+    setAmps(a.map(v => +(v/m).toFixed(2)));
+  }
+
+  function ensureAudio() {
+    if (ctxA) return;
+    ctxA = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctxA.createGain(); master.gain.value = 0; master.connect(ctxA.destination);
+    for (let k = 1; k <= NMODES; k++) {
+      const o = ctxA.createOscillator(); o.type = 'sine'; o.frequency.value = k * F0;
+      const g = ctxA.createGain(); g.gain.value = 0;
+      o.connect(g); g.connect(master); o.start();
+      oscs.push(o); gains.push(g);
+    }
+  }
+  function syncGains() {
+    if (!ctxA) return;
+    const total = amps.reduce((s,v) => s+v, 0) || 1;
+    const scale = 0.55 / Math.max(1, total);
+    amps.forEach((a,i) => gains[i].gain.setTargetAtTime(a*scale, ctxA.currentTime, 0.03));
+  }
+  const playBtn = document.getElementById('play');
+  playBtn.onclick = () => {
+    ensureAudio(); ctxA.resume();
+    playing = !playing;
+    master.gain.setTargetAtTime(playing ? 1 : 0, ctxA.currentTime, 0.05);
+    syncGains();
+    playBtn.classList.toggle('on', playing);
+    playBtn.innerHTML = playing ? '&#9632; stop' : '&#9654; play';
+  };
+
+  const cv = document.getElementById('string'), cx = cv.getContext('2d');
+  function dpr(){ return window.devicePixelRatio || 1; }
+  function resize(){ cv.width = (cv.clientWidth || 820) * dpr(); cv.height = 280 * dpr(); }
+  window.addEventListener('resize', resize); resize();
+
+  function draw() {
+    const W = cv.width, H = cv.height, m = 40*dpr(), midY = H/2, amp = H*0.38;
+    const INK = col('--text'), RULE = col('--rule'), MODE = col('--mode'),
+          MODE2 = col('--mode-lo'), FAINT = col('--text-faint');
+    cx.clearRect(0,0,W,H);
+    cx.fillStyle = INK;
+    [[m,midY],[W-m,midY]].forEach(p => { cx.beginPath(); cx.arc(p[0],p[1],3.5*dpr(),0,7); cx.fill(); });
+    cx.strokeStyle = RULE; cx.lineWidth = 1*dpr();
+    cx.beginPath(); cx.moveTo(m,midY); cx.lineTo(W-m,midY); cx.stroke();
+    const norm = Math.max(1, amps.reduce((s,v)=>s+v,0));
+    if (showGhosts) {
+      cx.save(); cx.globalAlpha = 0.45; cx.strokeStyle = MODE2; cx.lineWidth = 1.2*dpr();
+      amps.forEach((a,i) => {
+        if (a < 0.01) return;
+        const k = i+1;
+        cx.beginPath();
+        for (let px = 0; px <= 240; px++) {
+          const x = px/240;
+          const y = midY - amp*(a/norm)*Math.sin(k*Math.PI*x)*Math.cos(k*t);
+          const X = m + x*(W-2*m);
+          px===0 ? cx.moveTo(X,y) : cx.lineTo(X,y);
+        }
+        cx.stroke();
+      });
+      cx.restore();
+    }
+    cx.strokeStyle = MODE; cx.lineWidth = 3*dpr();
+    cx.beginPath();
+    for (let px = 0; px <= 300; px++) {
+      const x = px/300;
+      let u = 0;
+      amps.forEach((a,i) => { u += (a/norm)*Math.sin((i+1)*Math.PI*x)*Math.cos((i+1)*t); });
+      const X = m + x*(W-2*m), Y = midY - amp*u;
+      px===0 ? cx.moveTo(X,Y) : cx.lineTo(X,Y);
+    }
+    cx.stroke();
+    cx.fillStyle = FAINT; cx.font = `${11*dpr()}px sans-serif`;
+    cx.fillText('the string: the sum of the modes set below', m, 16*dpr());
+    t += 0.045;
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  document.getElementById('pluckC').onclick = () => pluck(0.5);
+  document.getElementById('pluckE').onclick = () => pluck(0.2);
+  document.getElementById('pure1').onclick = () => setAmps([1]);
+  document.getElementById('pure2').onclick = () => setAmps([0,1]);
+  document.getElementById('clear').onclick = () => setAmps([]);
+  const gb = document.getElementById('ghosts');
+  gb.onclick = () => { showGhosts = !showGhosts; gb.classList.toggle('on', showGhosts); };
+  pluck(0.5);
+})();
+</script>
+</body>
+</html>

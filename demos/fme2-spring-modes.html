@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring-chain modes — Fundamental Mathematics in Engineering II demo</title>
+<meta name="description" content="Interactive demonstration: a chain of masses on springs has eigenvectors — modes — that keep their shape as time runs, and as the masses multiply the modes converge to sine waves. Fundamental Mathematics in Engineering II, Inference Lab, SKKU.">
+<style>
+/* Tokens copied from ../style.css so this file stands alone offline. */
+:root {
+  --bg:#fbfbfa; --bg-raised:#ffffff; --bg-sunken:#f2f2f0;
+  --text:#1a1a1c; --text-mute:#5c5c66; --text-faint:#84848f;
+  --rule:#e2e2df; --accent:#2d4a7c; --accent-lo:#eaeff7; --accent-hi:#1c3057;
+  --mode:#c1272d;                  /* a mode / eigen-object — matches the course slides */
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#131316; --bg-raised:#1b1b20; --bg-sunken:#0e0e11;
+    --text:#ececf0; --text-mute:#a6a6b2; --text-faint:#7b7b88;
+    --rule:#2c2c34; --accent:#93b2e6; --accent-lo:#1c2436; --accent-hi:#b9cdf2;
+    --mode:#f26a6a;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+     font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:60rem;margin:0 auto;padding:0 1.5rem}
+a{color:var(--accent);text-underline-offset:2px}
+.masthead{border-bottom:1px solid var(--rule);background:var(--bg-raised)}
+.masthead-inner{max-width:60rem;margin:0 auto;padding:1.4rem 1.5rem}
+.brand{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;text-decoration:none;color:inherit}
+.brand-name{font-family:var(--serif);font-size:1.5rem;font-weight:600;letter-spacing:-.01em}
+.brand-affil{font-size:.85rem;color:var(--text-faint)}
+h1{font-family:var(--serif);font-size:2rem;font-weight:600;margin:2.5rem 0 .4rem;letter-spacing:-.012em}
+.course-tag{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+            color:var(--text-faint);margin:0}
+.question{margin:1rem 0 0;max-width:38rem;font-size:1.06rem;color:var(--text-mute)}
+p{max-width:36rem}
+h2{font-size:1.2rem;font-weight:650;margin:2.6rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+.panel{margin-top:2rem;background:var(--bg-raised);border:1px solid var(--rule);border-radius:12px;padding:1.4rem}
+canvas{display:block;width:100%;height:auto;border-radius:8px;background:var(--bg-sunken);touch-action:none}
+#spectrum{margin-top:.6rem}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:1rem}
+button{font:inherit;font-size:.9rem;padding:.45rem .9rem;border-radius:7px;
+       border:1px solid var(--accent);background:var(--accent);color:var(--bg-raised);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button.ghost.on{background:var(--accent-lo)}
+button:hover{background:var(--accent-hi);border-color:var(--accent-hi);color:var(--bg-raised)}
+label{font-size:.9rem;color:var(--text-mute);display:flex;gap:.5rem;align-items:center}
+input[type=range]{accent-color:var(--accent);width:9rem}
+.note{font-size:.85rem;color:var(--text-faint);margin-top:.6rem;max-width:none}
+.note b{color:var(--mode)}
+ul{max-width:36rem}
+li{margin:.3rem 0}
+.footer{margin-top:4rem;border-top:1px solid var(--rule);padding:1.4rem 0 2.5rem;font-size:.85rem;color:var(--text-faint)}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="../index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p class="course-tag" style="margin-top:2.5rem">Fundamental Mathematics in Engineering II &middot; Lecture 13 &middot; demonstration</p>
+  <h1>A shape that keeps its shape is an eigenvector</h1>
+  <p class="question">
+    Pluck the chain by dragging it. Most shapes fall apart as time runs — but a
+    few survive unchanged. Which ones, and what do they turn into as the number
+    of masses grows?
+  </p>
+
+  <div class="panel">
+    <canvas id="chain" height="340"></canvas>
+    <canvas id="spectrum" height="120"></canvas>
+    <div class="controls">
+      <label>masses n <input type="range" id="nslider" min="2" max="64" value="8"> <span id="nval">8</span></label>
+      <button id="pluck">pluck center</button>
+      <button id="m1" class="ghost">mode 1</button>
+      <button id="m2" class="ghost">mode 2</button>
+      <button id="m3" class="ghost">mode 3</button>
+      <button id="overlay" class="ghost on">sine overlay</button>
+      <button id="pause" class="ghost">pause</button>
+      <button id="reset" class="ghost">reset</button>
+    </div>
+    <p class="note">
+      <b>Bars</b>: how much of each mode is in the motion (the coefficients |c<sub>k</sub>|).
+      Dashed curves: the continuum eigenfunctions sin(k&pi;x). Drag anywhere on the
+      chain to pluck it at that point.
+    </p>
+  </div>
+
+  <h2>How to read it</h2>
+  <ul>
+    <li>Press <em>mode 1</em>, <em>mode 2</em>, <em>mode 3</em>: each shape oscillates
+        without ever changing shape. Those shapes are the eigenvectors of the chain's
+        stiffness matrix — its <b style="color:var(--mode)">modes</b> — and each has its
+        own frequency.</li>
+    <li>Pluck it anywhere else: the shape changes as it runs, because it is a mixture of
+        modes ticking at different rates. The bars show the mixture.</li>
+    <li>A center pluck excites only the odd modes, with weights 1, 1/9, 1/25, … — the
+        same pattern that returns in week 10 as the Fourier sine series.</li>
+    <li>Slide n to 64: the beaded chain becomes a string, and the modes become
+        sin(k&pi;x). Matter became continuous; the eigenvector became an eigenfunction.</li>
+  </ul>
+
+  <p style="margin-top:2rem"><a href="../teaching.html">&larr; Back to teaching</a></p>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  const chainC = document.getElementById('chain');
+  const specC  = document.getElementById('spectrum');
+  const ctx = chainC.getContext('2d');
+  const sct = specC.getContext('2d');
+  const css = () => getComputedStyle(document.documentElement);
+  const col = name => css().getPropertyValue(name).trim();
+
+  let n = 8, coeffs = [], omegas = [], t = 0;
+  let running = true, showOverlay = true, dragging = false, dragPos = null;
+
+  function dpr() { return window.devicePixelRatio || 1; }
+  function dims() {
+    const W = chainC.width, H = chainC.height;
+    return { W, H, margin: 40 * dpr(), midY: H / 2, amp: H * 0.36 };
+  }
+  function resize() {
+    const cssW = chainC.clientWidth || 820;
+    chainC.width = cssW * dpr(); chainC.height = 340 * dpr();
+    specC.width  = cssW * dpr(); specC.height  = 120 * dpr();
+  }
+  // Fixed-fixed unit chain: mode k at mass j is sin(k*pi*j/(n+1)); omega_k = 2 sin(k*pi/(2(n+1)))
+  function modeShape(k, j) { return Math.sin(k * Math.PI * j / (n + 1)); }
+  function setOmegas() {
+    omegas = Array.from({length: n}, (_, i) => 2 * Math.sin((i + 1) * Math.PI / (2 * (n + 1))));
+  }
+  function decompose(u) {
+    coeffs = [];
+    for (let k = 1; k <= n; k++) {
+      let s = 0;
+      for (let j = 1; j <= n; j++) s += u[j - 1] * modeShape(k, j);
+      coeffs.push((2 / (n + 1)) * s);
+    }
+    t = 0;
+  }
+  function disp(j) {
+    let s = 0;
+    for (let k = 1; k <= n; k++) s += coeffs[k - 1] * modeShape(k, j) * Math.cos(omegas[k - 1] * t);
+    return s;
+  }
+  function pluckAt(frac, height) {
+    const u = [];
+    for (let j = 1; j <= n; j++) {
+      const x = j / (n + 1);
+      u.push(x <= frac ? height * x / frac : height * (1 - x) / (1 - frac));
+    }
+    decompose(u);
+  }
+  function pureMode(k) {
+    const u = [];
+    for (let j = 1; j <= n; j++) u.push(0.75 * modeShape(k, j));
+    decompose(u);
+  }
+
+  function drawChain() {
+    const { W, H, margin, midY, amp } = dims();
+    const INK = col('--text'), GUIDE = col('--accent'), MODE = col('--mode'),
+          FAINT = col('--text-faint'), RULE = col('--rule');
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = RULE;
+    ctx.fillRect(margin - 10 * dpr(), midY - 60 * dpr(), 8 * dpr(), 120 * dpr());
+    ctx.fillRect(W - margin + 2 * dpr(), midY - 60 * dpr(), 8 * dpr(), 120 * dpr());
+    if (showOverlay && !dragging) {
+      ctx.save();
+      ctx.setLineDash([6 * dpr(), 6 * dpr()]);
+      ctx.lineWidth = 1 * dpr();
+      ctx.globalAlpha = 0.45;
+      ctx.strokeStyle = GUIDE;
+      for (let k = 1; k <= Math.min(3, n); k++) {
+        ctx.beginPath();
+        for (let px = 0; px <= 200; px++) {
+          const x = px / 200;
+          const y = midY - amp * 0.75 * Math.sin(k * Math.PI * x);
+          const X = margin + x * (W - 2 * margin);
+          px === 0 ? ctx.moveTo(X, y) : ctx.lineTo(X, y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    const pts = [[margin, midY]];
+    for (let j = 1; j <= n; j++) {
+      const x = margin + (j / (n + 1)) * (W - 2 * margin);
+      let d;
+      if (dragging && dragPos) {
+        const frac = j / (n + 1);
+        d = frac <= dragPos.xFrac ? dragPos.yDisp * frac / dragPos.xFrac
+                                  : dragPos.yDisp * (1 - frac) / (1 - dragPos.xFrac);
+      } else d = disp(j);
+      pts.push([x, midY - amp * d]);
+    }
+    pts.push([W - margin, midY]);
+    ctx.strokeStyle = FAINT; ctx.lineWidth = 1.4 * dpr();
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+    ctx.stroke();
+    const r = Math.max(3, Math.min(9, 120 / n)) * dpr();
+    ctx.fillStyle = MODE;
+    for (let i = 1; i < pts.length - 1; i++) {
+      ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], r, 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.fillStyle = INK;
+    [pts[0], pts[pts.length - 1]].forEach(p => {
+      ctx.beginPath(); ctx.arc(p[0], p[1], 3 * dpr(), 0, 2 * Math.PI); ctx.fill();
+    });
+  }
+  function drawSpectrum() {
+    const W = specC.width, H = specC.height, m = 40 * dpr();
+    const INK = col('--text'), MODE = col('--mode'), FAINT = col('--text-faint');
+    sct.clearRect(0, 0, W, H);
+    sct.fillStyle = FAINT;
+    sct.font = `${11 * dpr()}px sans-serif`;
+    sct.textAlign = 'start';
+    sct.fillText('mode content |cₖ|', m, 14 * dpr());
+    const kmax = Math.min(n, 16);
+    const bw = (W - 2 * m) / kmax;
+    const maxc = Math.max(0.05, ...coeffs.map(Math.abs));
+    for (let k = 1; k <= kmax; k++) {
+      const h = Math.abs(coeffs[k - 1]) / maxc * (H - 45 * dpr());
+      sct.fillStyle = MODE;
+      sct.fillRect(m + (k - 1) * bw + bw * 0.2, H - 22 * dpr() - h, bw * 0.6, h);
+      sct.fillStyle = INK; sct.textAlign = 'center';
+      sct.fillText(k, m + (k - 1) * bw + bw * 0.5, H - 8 * dpr());
+      sct.textAlign = 'start';
+    }
+    if (n > 16) { sct.fillStyle = FAINT; sct.fillText('…', m + kmax * bw + 4 * dpr(), H - 8 * dpr()); }
+  }
+  function frame() {
+    if (running && !dragging) t += 0.03 * (8 / Math.sqrt(n));
+    drawChain(); drawSpectrum();
+    requestAnimationFrame(frame);
+  }
+  function pointerPos(ev) {
+    const rect = chainC.getBoundingClientRect();
+    const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+    const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
+    const { W, margin, midY, amp } = dims();
+    const sx = chainC.width / rect.width, sy = chainC.height / rect.height;
+    const xFrac = Math.min(0.98, Math.max(0.02, (cx * sx - margin) / (W - 2 * margin)));
+    const yDisp = Math.min(1, Math.max(-1, (midY - cy * sy) / amp));
+    return { xFrac, yDisp };
+  }
+  function startDrag(ev) { dragging = true; dragPos = pointerPos(ev); ev.preventDefault(); }
+  function moveDrag(ev)  { if (dragging) { dragPos = pointerPos(ev); ev.preventDefault(); } }
+  function endDrag() { if (!dragging) return; dragging = false; if (dragPos) pluckAt(dragPos.xFrac, dragPos.yDisp); dragPos = null; }
+  chainC.addEventListener('mousedown', startDrag);
+  chainC.addEventListener('mousemove', moveDrag);
+  window.addEventListener('mouseup', endDrag);
+  chainC.addEventListener('touchstart', startDrag, { passive: false });
+  chainC.addEventListener('touchmove', moveDrag, { passive: false });
+  chainC.addEventListener('touchend', endDrag);
+
+  const nslider = document.getElementById('nslider');
+  nslider.addEventListener('input', () => {
+    n = +nslider.value; document.getElementById('nval').textContent = n;
+    setOmegas(); pluckAt(0.5, 0.7);
+  });
+  document.getElementById('pluck').onclick = () => pluckAt(0.5, 0.7);
+  document.getElementById('m1').onclick = () => pureMode(1);
+  document.getElementById('m2').onclick = () => pureMode(2);
+  document.getElementById('m3').onclick = () => pureMode(3);
+  document.getElementById('reset').onclick = () => { coeffs = coeffs.map(() => 0); t = 0; };
+  const ovBtn = document.getElementById('overlay');
+  ovBtn.onclick = () => { showOverlay = !showOverlay; ovBtn.classList.toggle('on', showOverlay); };
+  const pauseBtn = document.getElementById('pause');
+  pauseBtn.onclick = () => { running = !running; pauseBtn.textContent = running ? 'pause' : 'play'; };
+
+  window.addEventListener('resize', resize);
+  resize(); setOmegas(); pluckAt(0.5, 0.7); frame();
+})();
+</script>
+</body>
+</html>
