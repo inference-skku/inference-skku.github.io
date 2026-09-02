@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join — Inference Lab</title>
+<meta name="description" content="Openings for MS students and undergraduate researchers at the Inference Lab, Sungkyunkwan University: what we work on, what to prepare, and concrete projects.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-name">Inference Lab</span>
+      <span class="brand-affil">Sungkyunkwan University &middot; School of Mechanical Engineering</span>
+    </a>
+    <nav class="site">
+      <a href="index.html">Home</a>
+      <a href="research.html">Research</a>
+      <a href="publications.html">Publications</a>
+      <a href="teaching.html">Teaching</a>
+      <a href="join.html" aria-current="page">Join</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h1>Join the lab</h1>
+  <p class="lede">
+    Inference Lab is new. Its first cohort will be MS students and undergraduate
+    researchers; PhD positions open once that cohort is running.
+  </p>
+
+  <section>
+    <h2>What you would actually be doing</h2>
+    <p>
+      Scientific models cannot resolve everything. A climate model cannot resolve
+      individual clouds; a filter cannot track every fast oscillation. So we
+      replace what we cannot resolve with something learned from data — and then
+      we are stuck with a question that is easy to state and hard to answer:
+      <strong>is the replacement good enough, and good enough for what?</strong>
+    </p>
+    <p>
+      A learned model can forecast beautifully for three days and still get the
+      thirty-year statistics wrong. That failure is invisible to the metric people
+      usually check, and it is fatal for the purpose the model is actually used
+      for. Our work is the mathematics of that gap.
+    </p>
+    <p>
+      In practice this means: stochastic dynamics, Bayesian inference, and a
+      careful, slightly suspicious relationship with machine learning. We use
+      neural networks as measuring instruments more than as products.
+    </p>
+  </section>
+
+  <section>
+    <h2>Who we are looking for</h2>
+    <dl class="facts">
+      <dt>MS students</dt>
+      <dd>Two years. You own one research problem from its first week, take it
+      through to a thesis and a paper, and present it at a meeting. Applications
+      go through the SKKU Graduate School; contact the PI before you apply.</dd>
+
+      <dt>Undergraduate researchers</dt>
+      <dd>One semester to a year, part-time. A scoped piece of a real project,
+      with a deliverable you can show — not busywork. This is the usual route into
+      the lab, and it can start at any time of year.</dd>
+
+      <dt>PhD applicants</dt>
+      <dd>Not in this first round. If you are interested, write anyway and say so —
+      the first PhD position will go to someone who already knows how the lab
+      works.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Preparation</h2>
+    <p>
+      The lab sits between mathematics, physics and computing. Nobody arrives
+      holding all three; you need a solid footing in one and the willingness to
+      pick up the rest here.
+    </p>
+
+    <p><strong>Undergraduate researchers — expected:</strong></p>
+    <ul class="plain">
+      <li>Ordinary differential equations</li>
+      <li>Some numerical methods — you should know why a Runge–Kutta step is not a Euler step</li>
+    </ul>
+
+    <p><strong>MS students — expected, in addition:</strong></p>
+    <ul class="plain">
+      <li>Probability and statistics, to the level of a good undergraduate course</li>
+      <li>Partial differential equations, at least acquaintance</li>
+    </ul>
+
+    <div class="pull">
+      <p>
+        The trait that matters most here is not cleverness but care — the
+        willingness to check your own result before you believe it, and to keep
+        checking after it starts agreeing with you. Most of what this lab has
+        found came from taking a number seriously that everyone else had
+        accepted.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>MS projects</h2>
+    <p>
+      These are real, currently open, and scoped so that a first-year student can
+      own one from the beginning. Say in your email which one interests you
+      and why — or propose something else; these are starting points, not
+      fences.
+    </p>
+
+    <div class="project">
+      <h3>M1 &nbsp;·&nbsp; Do our closures get the extremes right?</h3>
+      <p>
+        Our stochastic closures reproduce the bulk of the distribution to the
+        accuracy of the reference data. We predict, on theoretical grounds, that
+        they nevertheless fail in the tails — because the mechanism that repairs
+        the bulk acts at zero frequency, and extremes do not live at zero
+        frequency.
+      </p>
+      <p>
+        You would test that prediction on a simulation grid that already exists.
+        If it holds, asking what would repair the tails is the natural next
+        step — an optional stretch, not a thesis requirement.
+        <strong>Why it is a good first project:</strong> the infrastructure is
+        built, so you spend your time on the science; and because the prediction is
+        falsifiable, the project cannot quietly fail. <strong>You would learn:</strong> extreme-value
+        statistics, and what it is like to work where theory has stuck its neck out.
+      </p>
+    </div>
+
+    <div class="project">
+      <h3>M2 &nbsp;·&nbsp; Can the closure be written down in symbols?</h3>
+      <p>
+        Instead of a neural network, fit a sparse symbolic model to the same data
+        and find out how much of the behaviour survives being made readable. The
+        interesting question is not whether a symbolic model is worse — it usually
+        is — but <em>which statistics</em> it loses first, and whether those are
+        the ones anyone needs.
+      </p>
+      <p>
+        You would not start from zero: this project inherits a complete, audited
+        pipeline — eight fitted closure families, evaluation with honest floors,
+        and a written plan with named open questions. One of them is a small
+        gem: a numerical error we proved has a closed form, which a sparse
+        regressor should be able to rediscover from data alone.
+      </p>
+      <p>
+        <strong>You would learn:</strong> sparse regression, model
+        selection, and the real trade-off between interpretability and fidelity —
+        which is rarely the one people assume.
+      </p>
+    </div>
+
+    <div class="project">
+      <h3>M3 &nbsp;·&nbsp; Learning for systems that hit things</h3>
+      <p>
+        Mechanical systems with impacts, friction and clearances are nonsmooth,
+        and learned models of them fail in characteristic ways at the contact.
+        This project asks the lab's usual question — is the learned replacement
+        good enough, and for what statistic? — about a noisy impact oscillator.
+      </p>
+      <p>
+        <strong>Why it is here:</strong> beneath the mechanics sits the same
+        question as the projects above — how a fast, noisy motion becomes a
+        slow equation — in a setting where classical theory gives exact answers
+        to check a learned model against. This one starts from a clean slate:
+        you inherit an analysis whose theory provides those answers, and you
+        write the simulator's first line yourself. Everything you build is
+        yours. <strong>You would learn:</strong> nonsmooth dynamics, event-driven
+        simulation, system identification, and how a method built for climate
+        transfers to a bench-scale problem.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Undergraduate projects</h2>
+    <p>
+      Each of these is a bounded piece of a larger study, sized for a semester or
+      a year part-time, with a deliverable you can show at the end. You can start
+      at any time.
+    </p>
+
+    <div class="project">
+      <h3>U1 &nbsp;·&nbsp; One emulator, one statistic</h3>
+      <p>
+        Several groups have released machine-learned models that simulate the
+        atmosphere far faster than a physics-based model. Whether they reproduce
+        the long-run statistics — the climate, rather than the forecast — is much
+        less clear. You would take one publicly released model and one statistic,
+        compute it honestly with an uncertainty floor, and compare it to the
+        reference. <strong>You would learn:</strong> time-series analysis,
+        working with large public datasets, and how to build an evaluation you
+        can defend.
+      </p>
+    </div>
+
+    <div class="project">
+      <h3>U2 &nbsp;·&nbsp; Tail statistics on an existing grid</h3>
+      <p>
+        The data half of project M1: compute extreme-value statistics across a
+        simulation grid that already exists, with proper uncertainty, and
+        assemble them into one figure we can all read. <strong>You would
+        learn:</strong> extreme-value statistics in practice, and what "with
+        proper uncertainty" actually costs.
+      </p>
+    </div>
+
+
+    <!--
+      U4 · The consistency survey - DO NOT UNHIDE before the CCAI@NeurIPS 2026
+      decision (29 Sep 2026). The project description states the paper's
+      finding and the paper is under double-blind review; listing it here
+      would identify the authors. After the decision, move this block out of
+      the comment. (Renumber: with U3 deleted, this may become U3.)
+
+    <div class="project">
+      <h3>U4 &nbsp;·&nbsp; Which public testbeds get the numerics right?</h3>
+      <p>
+        A learned closure is trained on a target that a numerical convention
+        manufactured, then deployed inside a solver that may not match it. We
+        proved this mismatch has a closed form and corrupts exactly the
+        statistics climate models are used for &mdash; and that nobody states
+        their conventions. This project checks the field: read the public
+        Lorenz&nbsp;'96 implementations &mdash; the community's teaching and
+        benchmark codes &mdash; and determine, line by line, which target
+        convention and which deployment solver each one commits to. Where the
+        pair is mismatched, quantify the cost from our published scaling
+        curve; where a trained model is public, retrain it under its own
+        protocol and test whether switching only the deployment solver heals
+        its climate &mdash; our results say likelihood-trained models heal and
+        classically-fitted schemes do not, and nobody knows where adversarial
+        and sequence-trained models fall.
+      </p>
+      <p>
+        <strong>Why it is a good first project:</strong> the first rows already
+        exist from our own work, each new row is about a week, and every
+        outcome is worth reporting &mdash; including "this popular testbed is
+        fine." <strong>You would learn:</strong> code forensics &mdash; reading
+        other people's scientific software with a rubric &mdash; numerical
+        analysis you can see with your own eyes, and how to audit a field
+        politely.
+      </p>
+    </div>
+    -->
+  </section>
+
+  <section>
+    <h2>How to get in touch</h2>
+    <p>
+      Email <a href="mailto:jun.park@skku.edu">jun.park@skku.edu</a>. Please include:
+    </p>
+    <ul class="plain">
+      <li>Your CV and transcript</li>
+      <li>Which project interests you, and why — a couple of sentences is plenty</li>
+      <li>One paragraph about something you once tried to understand and how far you got. It does not have to be a success story, and it does not have to be mathematics.</li>
+    </ul>
+    <p>
+      That last item is the one worth spending time on. It tells me far more than
+      a transcript does.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Inference Lab &middot; School of Mechanical Engineering, Sungkyunkwan University, Suwon, Republic of Korea</p>
+    <p><a href="mailto:jun.park@skku.edu">jun.park@skku.edu</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
